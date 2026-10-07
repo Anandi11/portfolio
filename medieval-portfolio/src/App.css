@@ -1,0 +1,2246 @@
+/* =========================================================
+   GLOBAL
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+}
+
+body {
+  background: #030403;
+  color: #ded0b5;
+  font-family: Georgia, 'Times New Roman', serif;
+  overflow-x: hidden;
+}
+
+button,
+a {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background: #030403;
+}
+
+
+/* =========================================================
+   LANDING SCENE
+   ========================================================= */
+
+.landing-scene {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: #020806;
+  isolation: isolate;
+  cursor: none;
+}
+
+
+/* =========================================================
+   RESPONSIVE ART STAGE
+
+   bg2.png is a wide cinematic 16:9-style image. The stage is
+   deliberately kept at that same aspect ratio, then cropped by
+   the viewport. The arch and background therefore scale/crop
+   together instead of drifting against each other.
+   ========================================================= */
+
+.landing-stage {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+
+  width: max(100vw, 178.545vh);
+  height: max(100vh, 56.007vw);
+
+  transform: translate(-50%, -50%);
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   BACKGROUND
+   ========================================================= */
+
+.landing-background {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  /* Fill the fixed-ratio stage exactly; no independent viewport crop. */
+  object-fit: fill;
+
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+
+  filter:
+    brightness(0.55)
+    saturate(0.85);
+
+  transform-origin: center center;
+}
+
+
+/* =========================================================
+   PORTAL / DOOR
+   ========================================================= */
+
+.portal-area {
+  position: absolute;
+  z-index: 20;
+
+  left: 50%;
+  top: 50%;
+
+  /* Percentages are now relative to the same art stage as bg2. */
+  width: 54%;
+  height: 94%;
+
+  transform: translate(-50%, -48%);
+  pointer-events: auto;
+}
+
+.landing-archdoor {
+  position: absolute;
+  z-index: 2;
+
+  left: 50%;
+  top: 50%;
+
+  width: 100%;
+  height: 100%;
+
+  transform: translate(-50%, -50%);
+  object-fit: contain;
+  object-position: center center;
+
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+
+  /* The arch itself NEVER changes on hover or during opening. */
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+
+/* =========================================================
+   CLICK / HOVER TARGET
+   ========================================================= */
+
+.portal-hit-area {
+  position: absolute;
+  z-index: 50;
+
+  left: 25%;
+  top: 15%;
+  width: 50%;
+  height: 75%;
+
+  padding: 0;
+  margin: 0;
+  border: 0;
+  outline: 0;
+  background: transparent !important;
+  appearance: none;
+  pointer-events: auto;
+  cursor: none;
+  opacity: 1;
+}
+
+.portal-hit-area:hover,
+.portal-hit-area:focus,
+.portal-hit-area:active {
+  background: transparent !important;
+  border: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+}
+
+
+/* =========================================================
+   HOVER SPARKLES
+   ========================================================= */
+
+.portal-particles {
+  position: absolute;
+  z-index: 40;
+
+  left: 25%;
+  top: 15%;
+  width: 50%;
+  height: 75%;
+
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: 48% 48% 8% 8%;
+}
+
+.portal-particle {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+
+  background: rgba(135, 255, 180, 0.95);
+  box-shadow:
+    0 0 4px rgba(150, 255, 190, 0.95),
+    0 0 10px rgba(80, 255, 150, 0.8),
+    0 0 18px rgba(50, 230, 130, 0.4);
+
+  animation-name: portal-particle-float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+@keyframes portal-particle-float {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0) scale(0.3);
+  }
+  15% { opacity: 0.9; }
+  45% { opacity: 1; }
+  75% { opacity: 0.65; }
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--particle-drift), -65px, 0) scale(1.15);
+  }
+}
+
+
+/* =========================================================
+   TITLE
+   ========================================================= */
+
+.landing-title {
+  position: absolute;
+  z-index: 60;
+  top: 40px;
+  left: 48px;
+  pointer-events: none;
+  color: rgba(232, 238, 226, 0.9);
+  text-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.95),
+    0 0 25px rgba(0, 0, 0, 0.8);
+}
+
+.landing-title p {
+  margin: 0 0 5px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 11px;
+  letter-spacing: 0.36em;
+  opacity: 0.68;
+}
+
+.landing-title h1 {
+  margin: 0;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: clamp(22px, 2.2vw, 34px);
+  font-weight: 500;
+  letter-spacing: 0.12em;
+}
+
+
+/* =========================================================
+   ENTER HINT
+   ========================================================= */
+
+.portal-hint {
+  position: absolute;
+  z-index: 70;
+  left: 50%;
+  bottom: 7%;
+  transform: translateX(-50%);
+
+  color: rgba(225, 255, 235, 0.76);
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 10px;
+  letter-spacing: 0.34em;
+  white-space: nowrap;
+  pointer-events: none;
+  text-shadow: 0 0 12px rgba(80, 255, 150, 0.35);
+}
+
+.portal-hint span {
+  margin: 0 10px;
+  opacity: 0.65;
+}
+
+
+/* =========================================================
+   PORTAL OPENING TRANSITION
+   ========================================================= */
+
+.portal-transition {
+  position: fixed;
+  z-index: 150;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.portal-transition-flash {
+  position: absolute;
+  inset: -15%;
+
+  background:
+    radial-gradient(
+      circle at 50% 53%,
+      rgba(185, 255, 210, 0.24) 0%,
+      rgba(100, 255, 160, 0.10) 13%,
+      rgba(30, 180, 100, 0.035) 27%,
+      transparent 48%
+    );
+
+  opacity: 0;
+  animation: portal-transition-flash 1.15s ease-out forwards;
+}
+
+.portal-transition-particles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.portal-transition-particle {
+  position: absolute;
+  left: 50%;
+  top: 53%;
+
+  display: block;
+  border-radius: 50%;
+  opacity: 0;
+
+  background: rgba(205, 255, 220, 0.98);
+  box-shadow:
+    0 0 5px rgba(215, 255, 225, 1),
+    0 0 12px rgba(110, 255, 165, 0.92),
+    0 0 24px rgba(65, 235, 135, 0.48);
+
+  transform: translate(-50%, -50%) scale(0.15) rotate(var(--particle-rotation));
+
+  animation:
+    portal-transition-particle-burst
+    var(--particle-duration)
+    cubic-bezier(0.18, 0.75, 0.25, 1)
+    var(--particle-delay)
+    forwards;
+
+  will-change: transform, opacity;
+}
+
+@keyframes portal-transition-particle-burst {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.12) rotate(var(--particle-rotation));
+  }
+
+  10% {
+    opacity: 1;
+  }
+
+  34% {
+    opacity: 0.95;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(
+        calc(-50% + var(--particle-x)),
+        calc(-50% + var(--particle-y))
+      )
+      scale(1)
+      rotate(calc(var(--particle-rotation) + 180deg));
+  }
+}
+
+@keyframes portal-transition-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.65);
+  }
+  18% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 0.38;
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
+}
+
+.landing-fade {
+  position: fixed;
+  z-index: 140;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.97);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.15s ease;
+}
+
+.landing-is-opening .landing-fade {
+  opacity: 1;
+}
+
+.landing-is-opening .landing-background {
+  transform: scale(1.04);
+  filter:
+    brightness(0.35)
+    saturate(0.7);
+  transition:
+    transform 1.15s ease,
+    filter 1.15s ease;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 700px) {
+  .landing-title {
+    top: 25px;
+    left: 25px;
+  }
+
+  .landing-title p {
+    font-size: 8px;
+  }
+
+  .landing-title h1 {
+    font-size: 17px;
+  }
+
+  .portal-area {
+    width: 58%;
+    height: 92%;
+    transform: translate(-50%, -47%);
+  }
+
+  .portal-hit-area {
+    left: 22%;
+    top: 14%;
+    width: 56%;
+    height: 76%;
+  }
+
+  .portal-particles {
+    left: 22%;
+    top: 14%;
+    width: 56%;
+    height: 76%;
+  }
+
+  .portal-hint {
+    bottom: 5%;
+    font-size: 8px;
+    letter-spacing: 0.22em;
+  }
+}
+
+
+/* =========================================================
+   MOUSE MAGIC TRAIL
+   ========================================================= */
+
+.mouse-magic-trail {
+  position: fixed;
+
+  z-index: 1000;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  overflow: hidden;
+}
+
+
+/* =========================================================
+   MAIN CURSOR LIGHT
+   ========================================================= */
+
+.mouse-light {
+  position: absolute;
+
+  display: block;
+
+  width: 32px;
+  height: 32px;
+
+  transform:
+    translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(210, 255, 225, 0.35) 0%,
+      rgba(120, 255, 175, 0.16) 25%,
+      rgba(60, 230, 140, 0.06) 48%,
+      transparent 72%
+    );
+
+  filter: blur(2px);
+
+  mix-blend-mode: screen;
+}
+
+
+/* =========================================================
+   TRAILING LIGHT
+   ========================================================= */
+
+.mouse-trail-particle {
+  position: absolute;
+
+  display: block;
+
+  transform:
+    translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(210, 255, 225, 0.9),
+      rgba(90, 255, 160, 0.35) 35%,
+      transparent 72%
+    );
+
+  filter: blur(1px);
+
+  mix-blend-mode: screen;
+
+  will-change:
+    left,
+    top,
+    opacity;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+  .landing-title {
+    top: 25px;
+    left: 25px;
+  }
+
+  .landing-title p {
+    font-size: 8px;
+  }
+
+  .landing-title h1 {
+    font-size: 17px;
+  }
+
+  .portal-area {
+    width: 95vw;
+    height: 85vh;
+
+    transform:
+      translate(-50%, -47%);
+  }
+
+  .portal-particles {
+    left: 29%;
+    top: 22%;
+
+    width: 42%;
+    height: 63%;
+  }
+
+  .portal-hint {
+    bottom: 5%;
+
+    font-size: 8px;
+
+    letter-spacing: 0.22em;
+  }
+}
+
+
+/* =========================================================
+   CINEMATIC LIGHT BURST
+========================================================= */
+
+.realm-flash {
+  position: absolute;
+
+  z-index: 15;
+
+  left: 50%;
+  top: 50%;
+
+  width: 20px;
+  height: 20px;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 240, 190, 1),
+      rgba(255, 185, 76, 0.85) 15%,
+      rgba(255, 140, 40, 0.35) 35%,
+      transparent 70%
+    );
+
+  filter: blur(2px);
+
+  pointer-events: none;
+
+  opacity: 0;
+}
+
+.landing-opening .realm-flash {
+  animation:
+    realm-flash-animation 1.55s
+    cubic-bezier(.45, 0, .2, 1)
+    forwards;
+}
+
+@keyframes realm-flash-animation {
+
+  0% {
+    opacity: 0;
+
+    transform:
+      translate(-50%, -50%)
+      scale(0);
+  }
+
+  35% {
+    opacity: 0.65;
+
+    transform:
+      translate(-50%, -50%)
+      scale(5);
+  }
+
+  70% {
+    opacity: 0.95;
+
+    transform:
+      translate(-50%, -50%)
+      scale(35);
+  }
+
+  100% {
+    opacity: 1;
+
+    transform:
+      translate(-50%, -50%)
+      scale(80);
+  }
+}
+
+
+/* =========================================================
+   LANDING VIGNETTE
+========================================================= */
+
+.landing-vignette {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 12;
+
+  pointer-events: none;
+
+  background:
+    radial-gradient(
+      circle at center,
+      transparent 20%,
+      rgba(0, 0, 0, 0.18) 48%,
+      rgba(0, 0, 0, 0.60) 82%,
+      rgba(0, 0, 0, 0.88) 100%
+    );
+
+  transition:
+    opacity 1s ease;
+}
+
+.landing-opening .landing-vignette {
+  opacity: 0.35;
+}
+
+
+/* =========================================================
+   ENTER THE REALM MESSAGE
+========================================================= */
+
+.door-message {
+  position: absolute;
+
+  left: 50%;
+  bottom: 42px;
+
+  z-index: 25;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  transform:
+    translateX(-50%)
+    translateY(12px);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  color: #9e9079;
+
+  transition:
+    opacity 0.5s ease,
+    transform 0.5s ease,
+    color 0.5s ease;
+}
+
+.door-message-visible {
+  opacity: 1;
+
+  transform:
+    translateX(-50%)
+    translateY(0);
+
+  color: #e2bd75;
+
+  text-shadow:
+    0 0 14px
+    rgba(255, 173, 54, 0.65);
+}
+
+.door-message span {
+  color: #f0c675;
+
+  font-size: 14px;
+
+  text-shadow:
+    0 0 10px
+    rgba(255, 173, 54, 0.7);
+}
+
+.door-message p {
+  margin: 0;
+
+  font-size: 9px;
+
+  letter-spacing: 4px;
+}
+
+
+/* =========================================================
+   LANTERN CURSOR
+========================================================= */
+
+.lantern-cursor {
+  position: fixed;
+
+  width: 55px;
+  height: 70px;
+
+  transform:
+    translate(-50%, -50%);
+
+  z-index: 9999;
+
+  pointer-events: none;
+
+  mix-blend-mode: screen;
+
+  transition:
+    opacity 0.3s ease;
+}
+
+
+/*
+ * Large soft warm aura.
+ */
+
+.cursor-aura {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 105px;
+  height: 105px;
+
+  transform:
+    translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 188, 76, 0.16),
+      rgba(255, 155, 50, 0.07) 38%,
+      transparent 72%
+    );
+
+  filter: blur(5px);
+
+  animation:
+    lantern-breathe 2.2s
+    ease-in-out
+    infinite;
+}
+
+@keyframes lantern-breathe {
+
+  0%,
+  100% {
+    transform:
+      translate(-50%, -50%)
+      scale(0.92);
+  }
+
+  50% {
+    transform:
+      translate(-50%, -50%)
+      scale(1.08);
+  }
+}
+
+
+/*
+ * Lantern body
+ */
+
+.cursor-lantern {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 22px;
+  height: 31px;
+
+  transform:
+    translate(-50%, -50%);
+
+  border: 1px solid #c5a86e;
+
+  border-radius: 4px;
+
+  background:
+    rgba(24, 16, 7, 0.55);
+
+  box-shadow:
+    0 0 18px
+    rgba(255, 176, 55, 0.65),
+
+    0 0 35px
+    rgba(255, 140, 30, 0.18);
+}
+
+
+/*
+ * Lantern handle
+ */
+
+.cursor-handle {
+  position: absolute;
+
+  left: 50%;
+  top: -9px;
+
+  width: 11px;
+  height: 10px;
+
+  transform:
+    translateX(-50%);
+
+  border:
+    1px solid #c5a86e;
+
+  border-bottom: 0;
+
+  border-radius:
+    8px 8px 0 0;
+}
+
+
+/*
+ * Glass
+ */
+
+.cursor-glass {
+  position: absolute;
+
+  inset: 5px;
+
+  background:
+    radial-gradient(
+      circle,
+      #fff0a7 0 15%,
+      #ff9f2d 40%,
+      transparent 72%
+    );
+
+  border-radius: 2px;
+}
+
+
+/*
+ * Flame
+ */
+
+.cursor-glass span {
+  position: absolute;
+
+  left: 50%;
+  top: 50%;
+
+  width: 5px;
+  height: 9px;
+
+  transform:
+    translate(-50%, -50%);
+
+  border-radius: 50%;
+
+  background: #fff7c9;
+
+  box-shadow:
+    0 0 8px #ffaf38;
+
+  animation:
+    flame 0.45s
+    infinite alternate;
+}
+
+@keyframes flame {
+
+  to {
+    transform:
+      translate(-50%, -55%)
+      scale(1.15);
+  }
+}
+
+
+/*
+ * Lantern base
+ */
+
+.cursor-base {
+  position: absolute;
+
+  left: 50%;
+  bottom: -4px;
+
+  width: 17px;
+  height: 3px;
+
+  transform:
+    translateX(-50%);
+
+  background: #c5a86e;
+}
+
+
+/* =========================================================
+   LANTERN TRAIL
+========================================================= */
+
+.lantern-trail-container {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 9998;
+
+  pointer-events: none;
+
+  overflow: hidden;
+}
+
+.lantern-trail-dot {
+  position: fixed;
+
+  width: 4px;
+  height: 4px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(255, 196, 105, 0.65);
+
+  box-shadow:
+    0 0 7px
+    rgba(255, 173, 54, 0.45),
+
+    0 0 14px
+    rgba(255, 140, 30, 0.18);
+
+  pointer-events: none;
+}
+
+
+/* =========================================================
+   WORLD
+========================================================= */
+
+.world-scene {
+  position: relative;
+
+  min-height: 100vh;
+  height: 100vh;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      #07140f,
+      #18382d 50%,
+      #0b1a15
+    );
+}
+
+.world-sky {
+  position: absolute;
+
+  inset: 0;
+
+  background:
+    radial-gradient(
+      circle at 75% 22%,
+      rgba(218, 205, 151, 0.2),
+      transparent 14%
+    ),
+
+    linear-gradient(
+      #07100d 0%,
+      #17382c 55%,
+      #0b1713 100%
+    );
+}
+
+.world-mountains {
+  position: absolute;
+
+  left: -10%;
+  right: -10%;
+  bottom: 20%;
+
+  height: 45%;
+
+  background:
+    linear-gradient(
+      135deg,
+      transparent 10%,
+      #142b24 10% 28%,
+      transparent 28% 40%,
+      #10251f 40% 62%,
+      transparent 62%
+    ),
+
+    linear-gradient(
+      45deg,
+      #0b1b16,
+      #203f32,
+      #09120f
+    );
+
+  clip-path:
+    polygon(
+      0 65%,
+      15% 32%,
+      28% 60%,
+      44% 18%,
+      61% 54%,
+      76% 28%,
+      100% 58%,
+      100% 100%,
+      0 100%
+    );
+
+  opacity: 0.9;
+}
+
+.world-ground {
+  position: absolute;
+
+  left: -5%;
+  right: -5%;
+  bottom: -10%;
+
+  height: 45%;
+
+  background:
+    radial-gradient(
+      ellipse at center,
+      rgba(79, 104, 75, 0.35),
+      transparent 45%
+    ),
+
+    linear-gradient(
+      #14261e,
+      #050907 70%
+    );
+
+  transform:
+    perspective(500px)
+    rotateX(18deg);
+
+  transform-origin: bottom;
+}
+
+.world-fog {
+  position: absolute;
+
+  inset:
+    auto -10% 18% -10%;
+
+  height: 20%;
+
+  background:
+    rgba(193, 211, 194, 0.09);
+
+  filter: blur(35px);
+
+  animation:
+    drift 12s
+    ease-in-out
+    infinite;
+}
+
+@keyframes drift {
+
+  50% {
+    transform:
+      translateX(70px)
+      rotate(4deg);
+
+    opacity: 0.55;
+  }
+}
+
+.world-header {
+  position: absolute;
+
+  top: 34px;
+  left: 42px;
+  right: 42px;
+
+  z-index: 5;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+
+  color: #bca578;
+}
+
+.world-brand {
+  border: 0;
+  background: none;
+
+  color: #bca578;
+
+  text-align: left;
+
+  line-height: 1.6;
+
+  letter-spacing: 3px;
+
+  cursor: pointer;
+}
+
+.world-brand strong {
+  color: #ead8b0;
+
+  font-weight: 400;
+
+  letter-spacing: 5px;
+}
+
+.world-header > span {
+  font-size: 10px;
+  letter-spacing: 5px;
+}
+
+.guide-card {
+  position: absolute;
+
+  left: 9%;
+  top: 24%;
+
+  z-index: 5;
+
+  width: min(390px, 40vw);
+
+  padding: 28px;
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(9, 17, 13, 0.82),
+      rgba(31, 41, 31, 0.45)
+    );
+
+  border:
+    1px solid
+    rgba(194, 159, 92, 0.28);
+
+  box-shadow:
+    0 20px 60px
+    rgba(0, 0, 0, 0.4);
+}
+
+.guide-portrait {
+  width: 62px;
+  height: 62px;
+
+  display: grid;
+  place-items: center;
+
+  border:
+    1px solid
+    #b28c51;
+
+  border-radius: 50%;
+
+  color: #e1bb6d;
+
+  font-size: 30px;
+
+  background:
+    rgba(0, 0, 0, 0.3);
+}
+
+.eyebrow {
+  margin: 0 0 10px;
+
+  font-size: 9px;
+
+  letter-spacing: 5px;
+
+  color: #b0925f;
+}
+
+.guide-card h1 {
+  margin: 0 0 12px;
+
+  font-size:
+    clamp(30px, 4vw, 52px);
+
+  font-weight: 400;
+
+  color: #ead8b4;
+}
+
+.guide-card p:last-child {
+  color: #aaa28e;
+
+  line-height: 1.7;
+}
+
+.realm-paths {
+  position: absolute;
+
+  right: 7%;
+  bottom: 12%;
+
+  z-index: 6;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  gap: 14px;
+
+  width: min(520px, 48vw);
+}
+
+.realm-paths button {
+  min-height: 120px;
+
+  padding: 18px;
+
+  text-align: left;
+
+  border:
+    1px solid
+    rgba(202, 168, 103, 0.25);
+
+  background:
+    rgba(4, 9, 7, 0.55);
+
+  color: #dfcca7;
+
+  transition: 0.3s;
+}
+
+.realm-paths button:hover {
+  transform: translateY(-5px);
+
+  border-color: #b89457;
+
+  background:
+    rgba(30, 34, 24, 0.72);
+
+  box-shadow:
+    0 12px 30px
+    rgba(0, 0, 0, 0.35);
+}
+
+.realm-paths span {
+  display: block;
+
+  font-size: 27px;
+
+  color: #c9a15d;
+
+  margin-bottom: 15px;
+}
+
+.realm-paths strong {
+  display: block;
+
+  letter-spacing: 3px;
+
+  font-size: 12px;
+}
+
+.realm-paths small {
+  display: block;
+
+  margin-top: 7px;
+
+  color: #8e897b;
+}
+
+
+/* =========================================================
+   INNER PAGES
+========================================================= */
+
+.realm-page {
+  position: relative;
+
+  min-height: 100vh;
+
+  overflow: hidden;
+
+  background:
+    radial-gradient(
+      circle at 50% 20%,
+      #1b2b24,
+      #080e0b 55%,
+      #030403
+    );
+
+  color: #ded0b5;
+
+  padding-bottom: 90px;
+}
+
+.page-stars {
+  position: absolute;
+
+  inset: 0;
+
+  opacity: 0.28;
+
+  background-image:
+    radial-gradient(
+      #d7b56c 1px,
+      transparent 1px
+    );
+
+  background-size: 70px 70px;
+}
+
+.page-header {
+  position: relative;
+
+  z-index: 3;
+
+  padding: 28px 40px;
+
+  display: flex;
+
+  justify-content: space-between;
+  align-items: center;
+
+  border-bottom:
+    1px solid
+    rgba(198, 164, 97, 0.14);
+
+  background:
+    rgba(0, 0, 0, 0.18);
+}
+
+.brand-mark {
+  border: 0;
+
+  background: none;
+
+  color: #9e8d6d;
+
+  text-align: left;
+
+  font-size: 9px;
+
+  line-height: 1.6;
+
+  letter-spacing: 3px;
+
+  cursor: pointer;
+}
+
+.brand-mark strong {
+  color: #ddc79f;
+
+  font-weight: 400;
+
+  letter-spacing: 4px;
+}
+
+.top-nav {
+  display: flex;
+
+  gap: 7px;
+
+  flex-wrap: wrap;
+
+  justify-content: flex-end;
+}
+
+.top-nav button {
+  border:
+    1px solid
+    rgba(190, 157, 91, 0.18);
+
+  background:
+    rgba(0, 0, 0, 0.2);
+
+  color: #9d957f;
+
+  padding: 8px 10px;
+
+  font-size: 9px;
+
+  letter-spacing: 1px;
+
+  transition: 0.25s;
+}
+
+.top-nav button:hover {
+  color: #e6c985;
+
+  border-color: #a68753;
+}
+
+.top-nav span {
+  margin-right: 5px;
+}
+
+.page-content {
+  position: relative;
+
+  z-index: 2;
+
+  width: min(1120px, 90%);
+
+  margin: 0 auto;
+
+  padding: 85px 0 40px;
+}
+
+.page-content > h1 {
+  margin: 0 0 16px;
+
+  font-size:
+    clamp(40px, 6vw, 76px);
+
+  font-weight: 400;
+
+  color: #ead8b1;
+
+  letter-spacing: 1px;
+}
+
+.page-intro {
+  max-width: 720px;
+
+  color: #9e9a8d;
+
+  line-height: 1.8;
+
+  font-size: 16px;
+}
+
+.return-world {
+  position: fixed;
+
+  left: 28px;
+  bottom: 24px;
+
+  z-index: 20;
+
+  border:
+    1px solid
+    rgba(193, 160, 93, 0.25);
+
+  background:
+    rgba(2, 5, 4, 0.8);
+
+  color: #bca16e;
+
+  padding: 10px 14px;
+
+  font-size: 10px;
+
+  letter-spacing: 2px;
+}
+
+
+/* =========================================================
+   ARMORY
+========================================================= */
+
+.armory-grid {
+  margin-top: 48px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 18px;
+}
+
+.weapon-card {
+  min-height: 230px;
+
+  padding: 25px;
+
+  border:
+    1px solid
+    rgba(190, 157, 92, 0.22);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(34, 44, 35, 0.65),
+      rgba(7, 11, 9, 0.8)
+    );
+
+  transition: 0.35s;
+}
+
+.weapon-card:hover {
+  transform:
+    translateY(-8px)
+    rotate(-0.5deg);
+
+  border-color: #b99555;
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.4),
+
+    0 0 25px
+    rgba(194, 150, 65, 0.08);
+}
+
+.weapon-icon {
+  font-size: 38px;
+
+  filter:
+    drop-shadow(
+      0 0 10px
+      rgba(222, 174, 83, 0.25)
+    );
+}
+
+.weapon-card h2 {
+  margin: 25px 0 8px;
+
+  color: #e3c996;
+
+  font-size: 24px;
+
+  font-weight: 400;
+}
+
+.weapon-card p {
+  color: #918e82;
+
+  line-height: 1.6;
+}
+
+.knowledge-panel {
+  margin-top: 20px;
+
+  padding: 18px 22px;
+
+  border-left:
+    2px solid
+    #a9844d;
+
+  background:
+    rgba(27, 33, 26, 0.5);
+}
+
+.knowledge-panel span {
+  font-size: 9px;
+
+  letter-spacing: 4px;
+
+  color: #a68857;
+}
+
+.knowledge-panel p {
+  margin-bottom: 0;
+
+  color: #c4b79e;
+}
+
+
+/* =========================================================
+   CHRONICLES
+========================================================= */
+
+.book {
+  margin-top: 45px;
+
+  padding: 28px;
+
+  border:
+    1px solid
+    rgba(190, 157, 92, 0.22);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(70, 53, 32, 0.18),
+      rgba(13, 18, 14, 0.72)
+    );
+
+  box-shadow:
+    inset 0 0 70px
+    rgba(0, 0, 0, 0.35);
+}
+
+.chapter {
+  display: grid;
+
+  grid-template-columns: 100px 1fr;
+
+  gap: 25px;
+
+  padding: 35px 20px;
+
+  border-bottom:
+    1px solid
+    rgba(190, 157, 92, 0.16);
+}
+
+.chapter:last-child {
+  border-bottom: 0;
+}
+
+.chapter-seal {
+  width: 64px;
+  height: 64px;
+
+  display: grid;
+
+  place-items: center;
+
+  border:
+    1px solid
+    #aa8550;
+
+  border-radius: 50%;
+
+  color: #d7b36d;
+
+  font-size: 24px;
+}
+
+.chapter-date {
+  font-size: 9px;
+
+  letter-spacing: 4px;
+
+  color: #a58b5e;
+}
+
+.chapter h2 {
+  margin: 8px 0;
+
+  font-size: 32px;
+
+  font-weight: 400;
+
+  color: #e4d1ab;
+}
+
+.chapter h3 {
+  margin: 0 0 12px;
+
+  color: #c0ad89;
+
+  font-size: 15px;
+
+  font-weight: 400;
+}
+
+.chapter p {
+  max-width: 800px;
+
+  color: #99968a;
+
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   HALL
+========================================================= */
+
+.project-grid {
+  margin-top: 45px;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, 1fr);
+
+  gap: 20px;
+}
+
+.project-card {
+  position: relative;
+
+  min-height: 430px;
+
+  padding: 28px;
+
+  border:
+    1px solid
+    rgba(191, 155, 87, 0.25);
+
+  background:
+    linear-gradient(
+      150deg,
+      rgba(40, 46, 34, 0.65),
+      rgba(8, 12, 9, 0.92)
+    );
+}
+
+.project-emblem {
+  width: 76px;
+  height: 76px;
+
+  display: grid;
+
+  place-items: center;
+
+  border:
+    1px solid
+    #aa8550;
+
+  border-radius: 50%;
+
+  font-size: 38px;
+
+  background:
+    rgba(0, 0, 0, 0.25);
+
+  box-shadow:
+    0 0 30px
+    rgba(214, 168, 80, 0.06);
+}
+
+.project-subtitle {
+  margin: 26px 0 5px;
+
+  color: #9f875d;
+
+  font-size: 9px;
+
+  letter-spacing: 3px;
+
+  text-transform: uppercase;
+}
+
+.project-card h2 {
+  margin: 0 0 16px;
+
+  font-size: 30px;
+
+  color: #e4d1a9;
+
+  font-weight: 400;
+}
+
+.tech-ribbon {
+  padding: 9px 10px;
+
+  margin-bottom: 18px;
+
+  background:
+    rgba(180, 143, 77, 0.09);
+
+  border-left:
+    2px solid
+    #a17b46;
+
+  color: #b5aa93;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+}
+
+.project-card > p:not(.project-subtitle) {
+  color: #99958a;
+
+  line-height: 1.65;
+
+  font-size: 14px;
+}
+
+.rune-button {
+  position: absolute;
+
+  bottom: 25px;
+  left: 28px;
+
+  border:
+    1px solid
+    rgba(194, 160, 94, 0.35);
+
+  background: transparent;
+
+  color: #c8a566;
+
+  padding: 9px 13px;
+
+  font-size: 9px;
+
+  letter-spacing: 3px;
+}
+
+
+/* =========================================================
+   GUILD
+========================================================= */
+
+.guild-layout {
+  margin-top: 45px;
+
+  display: grid;
+
+  grid-template-columns:
+    1.15fr 0.85fr;
+
+  gap: 28px;
+}
+
+.guild-section {
+  padding: 28px;
+
+  border:
+    1px solid
+    rgba(190, 157, 92, 0.2);
+
+  background:
+    rgba(8, 13, 10, 0.55);
+}
+
+.guild-section > h2 {
+  margin-top: 0;
+
+  color: #ddc99e;
+
+  font-weight: 400;
+
+  letter-spacing: 2px;
+}
+
+.award-row {
+  display: grid;
+
+  grid-template-columns: 50px 1fr;
+
+  gap: 16px;
+
+  padding: 20px 0;
+
+  border-bottom:
+    1px solid
+    rgba(190, 157, 92, 0.13);
+}
+
+.award-icon {
+  font-size: 30px;
+}
+
+.award-row span:not(.award-icon) {
+  font-size: 9px;
+
+  letter-spacing: 2px;
+
+  color: #9b845d;
+}
+
+.award-row h3 {
+  margin: 5px 0;
+
+  font-size: 20px;
+
+  color: #d9c49b;
+
+  font-weight: 400;
+}
+
+.award-row p {
+  margin: 0;
+
+  color: #8f8c82;
+
+  line-height: 1.5;
+}
+
+.role-row {
+  padding: 18px 0;
+
+  border-bottom:
+    1px solid
+    rgba(190, 157, 92, 0.13);
+}
+
+.role-row span {
+  display: block;
+
+  font-size: 9px;
+
+  letter-spacing: 2px;
+
+  color: #9b845d;
+}
+
+.role-row strong {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #dbc69b;
+
+  font-size: 19px;
+
+  font-weight: 400;
+}
+
+.role-row p {
+  margin: 4px 0 0;
+
+  color: #8d8a7f;
+}
+
+.cert-title {
+  margin-top: 40px !important;
+}
+
+.scroll-list {
+  padding: 0;
+
+  list-style: none;
+}
+
+.scroll-list li {
+  padding:
+    13px 0
+    13px 20px;
+
+  border-left:
+    1px solid
+    #9f7c49;
+
+  color: #aaa38e;
+
+  line-height: 1.5;
+}
+
+
+/* =========================================================
+   CONTACT
+========================================================= */
+
+.contact-card {
+  margin-top: 50px;
+
+  max-width: 800px;
+
+  padding: 45px;
+
+  border:
+    1px solid
+    rgba(194, 160, 94, 0.22);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(35, 43, 34, 0.65),
+      rgba(7, 11, 8, 0.9)
+    );
+}
+
+.contact-links {
+  display: grid;
+
+  gap: 12px;
+
+  margin: 35px 0;
+}
+
+.contact-links a {
+  padding: 16px;
+
+  border:
+    1px solid
+    rgba(194, 160, 94, 0.15);
+
+  background:
+    rgba(0, 0, 0, 0.2);
+
+  text-decoration: none;
+
+  color: #d0be98;
+
+  transition: 0.25s;
+}
+
+.contact-links a:hover {
+  border-color: #a88851;
+
+  transform:
+    translateX(5px);
+}
+
+.location {
+  color: #8f8b7e;
+
+  letter-spacing: 2px;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 850px) {
+
+  .landing-title {
+    left: 24px;
+    top: 25px;
+  }
+
+  .landing-title strong {
+    font-size: 25px;
+  }
+
+  /*
+   * Keep the door large enough to remain
+   * the main focal point on tablets.
+   */
+
+  .door-container {
+    width: min(683px, 82vw);
+  }
+
+  .landing-left-stone,
+  .landing-right-stone {
+    opacity: 0.85;
+  }
+
+  .top-nav {
+    display: none;
+  }
+
+  .page-header {
+    padding: 22px 24px;
+  }
+
+  .armory-grid,
+  .project-grid,
+  .guild-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .realm-paths {
+    left: 5%;
+    right: 5%;
+    bottom: 5%;
+
+    width: auto;
+  }
+
+  .guide-card {
+    left: 5%;
+    top: 18%;
+
+    width: 90%;
+  }
+}
+
+
+/* =========================================================
+   MOBILE
+========================================================= */
+
+@media (max-width: 520px) {
+
+  .landing-title {
+    left: 20px;
+    top: 22px;
+  }
+
+  .landing-title span {
+    font-size: 8px;
+    letter-spacing: 3px;
+  }
+
+  .landing-title strong {
+    font-size: 20px;
+    letter-spacing: 3px;
+  }
+
+  .landing-title i {
+    width: 80px;
+  }
+
+  .door-container {
+    width: 92vw;
+  }
+
+  .landing-left-stone,
+  .landing-right-stone {
+    height: 90%;
+  }
+
+  .door-message {
+    bottom: 30px;
+  }
+
+  .door-message p {
+    font-size: 8px;
+    letter-spacing: 3px;
+  }
+
+  .realm-paths {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .realm-paths button {
+    min-height: 95px;
+    padding: 12px;
+  }
+
+  .realm-paths span {
+    font-size: 20px;
+    margin-bottom: 7px;
+  }
+
+  .realm-paths strong {
+    font-size: 9px;
+  }
+
+  .realm-paths small {
+    font-size: 8px;
+  }
+
+  .page-content {
+    padding-top: 55px;
+  }
+
+  .chapter {
+    grid-template-columns: 55px 1fr;
+
+    gap: 15px;
+
+    padding:
+      25px 5px;
+  }
+
+  .chapter-seal {
+    width: 48px;
+    height: 48px;
+
+    font-size: 18px;
+  }
+
+  .chapter h2 {
+    font-size: 25px;
+  }
+
+  .contact-card {
+    padding: 25px;
+  }
+}
+
+
+/* =========================================================
+   ACCESSIBILITY
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
