@@ -2244,3 +2244,311 @@ button {
     transition-duration: 0.01ms !important;
   }
 }
+/* =========================================================
+   INTERACTIVE FOREST RIPPLE
+   ========================================================= */
+
+/*
+ * The SVG filter definitions are invisible.
+ */
+.landing-ripple-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+
+/*
+ * The normal forest background.
+ */
+.landing-scene .landing-background {
+  position: absolute !important;
+  z-index: 1 !important;
+  inset: 0 !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  object-fit: cover !important;
+
+  pointer-events: none !important;
+
+  filter:
+    brightness(0.55)
+    saturate(0.85) !important;
+
+  transform: none;
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * RIPPLE BACKGROUND
+ *
+ * This is another copy of the forest.
+ *
+ * It is displaced using the SVG turbulence filter,
+ * but it is visible ONLY inside the circular mask
+ * around the mouse.
+ * ---------------------------------------------------------
+ */
+.landing-scene .landing-background-ripple {
+  position: absolute !important;
+  z-index: 2 !important;
+
+  inset: 0 !important;
+
+  width: 100% !important;
+  height: 100% !important;
+
+  object-fit: cover !important;
+
+  pointer-events: none !important;
+
+  opacity: 0;
+
+  filter:
+    url("#forest-ripple")
+    brightness(0.58)
+    saturate(0.9);
+
+  /*
+   * The circular mask follows:
+   *
+   * --ripple-x
+   * --ripple-y
+   */
+  -webkit-mask-image:
+    radial-gradient(
+      circle 150px at var(--ripple-x, 50%) var(--ripple-y, 50%),
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0.9) 28%,
+      rgba(0, 0, 0, 0.45) 55%,
+      rgba(0, 0, 0, 0) 100%
+    );
+
+  mask-image:
+    radial-gradient(
+      circle 150px at var(--ripple-x, 50%) var(--ripple-y, 50%),
+      rgba(0, 0, 0, 1) 0%,
+      rgba(0, 0, 0, 0.9) 28%,
+      rgba(0, 0, 0, 0.45) 55%,
+      rgba(0, 0, 0, 0) 100%
+    );
+
+  transition: opacity 0.35s ease;
+}
+
+
+/*
+ * Only reveal the distorted background while
+ * the cursor is interacting with the scene.
+ */
+.landing-scene.ripple-active .landing-background-ripple {
+  opacity: 0.65;
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * MAGICAL RIPPLE RINGS
+ * ---------------------------------------------------------
+ *
+ * These don't distort the image themselves.
+ * They visually communicate the ripple and make the
+ * interaction much easier to see.
+ */
+.forest-ripple-ring {
+  position: absolute;
+
+  z-index: 4;
+
+  left: var(--ripple-x, 50%);
+  top: var(--ripple-y, 50%);
+
+  width: 34px;
+  height: 34px;
+
+  transform:
+    translate(-50%, -50%)
+    scale(0.65);
+
+  border-radius: 50%;
+
+  border:
+    1px solid rgba(145, 255, 195, 0.22);
+
+  box-shadow:
+    0 0 10px rgba(90, 255, 165, 0.12),
+    inset 0 0 8px rgba(120, 255, 180, 0.08);
+
+  pointer-events: none;
+
+  opacity: 0;
+}
+
+
+/*
+ * First ring.
+ */
+.landing-scene.ripple-active .forest-ripple-ring-one {
+  animation:
+    forest-ripple-expand-one
+    1.7s
+    ease-out
+    infinite;
+}
+
+
+/*
+ * Second ring is offset, creating a layered
+ * magical-water effect.
+ */
+.landing-scene.ripple-active .forest-ripple-ring-two {
+  animation:
+    forest-ripple-expand-two
+    1.7s
+    ease-out
+    0.75s
+    infinite;
+}
+
+
+@keyframes forest-ripple-expand-one {
+  0% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(0.5);
+  }
+
+  15% {
+    opacity: 0.45;
+  }
+
+  65% {
+    opacity: 0.18;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(4.8);
+  }
+}
+
+
+@keyframes forest-ripple-expand-two {
+  0% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(0.45);
+  }
+
+  15% {
+    opacity: 0.32;
+  }
+
+  65% {
+    opacity: 0.12;
+  }
+
+  100% {
+    opacity: 0;
+    transform:
+      translate(-50%, -50%)
+      scale(4.5);
+  }
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * KEEP THE ARCH COMPLETELY UNAFFECTED
+ * ---------------------------------------------------------
+ */
+.landing-scene .landing-archdoor {
+  z-index: 10 !important;
+
+  filter: none !important;
+
+  transform:
+    translate(-50%, -50%) !important;
+
+  box-shadow: none !important;
+
+  opacity: 1 !important;
+
+  transition: none !important;
+}
+
+
+/*
+ * Hovering the door must NOT change the arch.
+ */
+.landing-scene.door-is-hovered .landing-archdoor,
+.landing-scene .door-is-hovered .landing-archdoor {
+  filter: none !important;
+
+  transform:
+    translate(-50%, -50%) !important;
+
+  box-shadow: none !important;
+
+  opacity: 1 !important;
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * KEEP PORTAL PARTICLES ABOVE EVERYTHING
+ * ---------------------------------------------------------
+ */
+.landing-scene .portal-particles {
+  z-index: 40 !important;
+  pointer-events: none !important;
+}
+
+
+/*
+ * Keep the clickable door above the ripple.
+ */
+.landing-scene .portal-hit-area {
+  z-index: 50 !important;
+}
+
+
+/*
+ * ---------------------------------------------------------
+ * OPENING TRANSITION
+ *
+ * Once the door opens, hide the mouse ripple immediately.
+ * ---------------------------------------------------------
+ */
+.landing-scene.landing-is-opening .landing-background-ripple {
+  opacity: 0 !important;
+}
+
+.landing-scene.landing-is-opening .forest-ripple-ring {
+  display: none;
+}
+
+
+/*
+ * Preserve your existing opening background behavior.
+ */
+.landing-scene.landing-is-opening .landing-background {
+  transform: scale(1.04) !important;
+
+  filter:
+    brightness(0.35)
+    saturate(0.7) !important;
+
+  transition:
+    transform 1s ease,
+    filter 1s ease;
+}

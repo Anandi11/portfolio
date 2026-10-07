@@ -21,12 +21,19 @@ const TRANSITION_PARTICLES = Array.from({ length: 120 }, (_, index) => ({
   rotation: Math.random() * 360,
 }));
 
-
-
 export default function LandingScene({ opened, onEnter }) {
   const ambientAudioRef = useRef(null);
-  const [doorHovered, setDoorHovered] = useState(false);
+  const landingSceneRef = useRef(null);
+  const rippleFrameRef = useRef(null);
 
+  const [doorHovered, setDoorHovered] = useState(false);
+  const [rippleActive, setRippleActive] = useState(false);
+
+  /*
+   * ---------------------------------------------------------
+   * AMBIENT LANDING SOUND
+   * ---------------------------------------------------------
+   */
   useEffect(() => {
     const ambient = new Audio('/assets/landing/ambient.wav');
 
@@ -35,10 +42,10 @@ export default function LandingScene({ opened, onEnter }) {
 
     ambientAudioRef.current = ambient;
 
-    // Try to start immediately when the page loads
+    // Try to start immediately.
     ambient.play().catch(() => {
       // Browser blocked autoplay.
-      // It will start on the user's first interaction instead.
+      // Start after the first interaction instead.
       const startAmbient = () => {
         ambient.play().catch(() => {});
       };
@@ -55,6 +62,73 @@ export default function LandingScene({ opened, onEnter }) {
     };
   }, []);
 
+  /*
+   * ---------------------------------------------------------
+   * MOUSE RIPPLE
+   *
+   * Only updates CSS variables.
+   * The actual distortion is handled by CSS/SVG.
+   * ---------------------------------------------------------
+   */
+  useEffect(() => {
+    const scene = landingSceneRef.current;
+
+    if (!scene) return;
+
+    const handlePointerMove = (event) => {
+      if (opened) return;
+
+      if (rippleFrameRef.current) {
+        cancelAnimationFrame(rippleFrameRef.current);
+      }
+
+      rippleFrameRef.current = requestAnimationFrame(() => {
+        const rect = scene.getBoundingClientRect();
+
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        const xPercent = (x / rect.width) * 100;
+        const yPercent = (y / rect.height) * 100;
+
+        scene.style.setProperty('--ripple-x', `${xPercent}%`);
+        scene.style.setProperty('--ripple-y', `${yPercent}%`);
+
+        // Stronger effect when the cursor is actually moving.
+        setRippleActive(true);
+      });
+    };
+
+    const handlePointerLeave = () => {
+      setRippleActive(false);
+    };
+
+    const handlePointerEnter = () => {
+      if (!opened) {
+        setRippleActive(true);
+      }
+    };
+
+    scene.addEventListener('pointermove', handlePointerMove);
+    scene.addEventListener('pointerleave', handlePointerLeave);
+    scene.addEventListener('pointerenter', handlePointerEnter);
+
+    return () => {
+      scene.removeEventListener('pointermove', handlePointerMove);
+      scene.removeEventListener('pointerleave', handlePointerLeave);
+      scene.removeEventListener('pointerenter', handlePointerEnter);
+
+      if (rippleFrameRef.current) {
+        cancelAnimationFrame(rippleFrameRef.current);
+      }
+    };
+  }, [opened]);
+
+  /*
+   * ---------------------------------------------------------
+   * DOOR HOVER
+   * ---------------------------------------------------------
+   */
   const handleDoorEnter = () => {
     if (!opened) {
       setDoorHovered(true);
@@ -67,16 +141,20 @@ export default function LandingScene({ opened, onEnter }) {
     }
   };
 
+  /*
+   * ---------------------------------------------------------
+   * DOOR CLICK
+   * ---------------------------------------------------------
+   */
   const handleDoorClick = () => {
     if (!opened && typeof onEnter === 'function') {
-
-      // Stop landing-page ambience
+      // Stop landing-page ambience.
       if (ambientAudioRef.current) {
         ambientAudioRef.current.pause();
         ambientAudioRef.current.currentTime = 0;
       }
 
-      // Play the actual portal swoosh
+      // Play actual portal swoosh.
       const swoosh = new Audio(
         '/assets/landing/portal-swoosh.wav'
       );
@@ -85,22 +163,65 @@ export default function LandingScene({ opened, onEnter }) {
 
       swoosh.play().catch(() => {});
 
-      // Start the visual portal transition
+      // Start visual transition.
       onEnter();
     }
   };
 
   return (
     <main
+      ref={landingSceneRef}
       className={`landing-scene ${
         doorHovered ? 'door-is-hovered' : ''
-      } ${opened ? 'landing-is-opening' : ''}`}
+      } ${rippleActive ? 'ripple-active' : ''} ${
+        opened ? 'landing-is-opening' : ''
+      }`}
     >
-      {/* RESPONSIVE ART STAGE
-          The background and arch live in the same 16:9 coordinate system.
-          This prevents the arch from drifting when the browser aspect ratio changes. */}
+      {/* =====================================================
+          SVG FILTER DEFINITIONS
+
+          These are invisible.
+          They are used only to distort the background.
+      ====================================================== */}
+      <svg
+        className="landing-ripple-defs"
+        aria-hidden="true"
+      >
+        <defs>
+          <filter
+            id="forest-ripple"
+            x="-20%"
+            y="-20%"
+            width="140%"
+            height="140%"
+          >
+            <feTurbulence
+              type="fractalNoise"
+              baseFrequency="0.018 0.035"
+              numOctaves="2"
+              seed="8"
+              result="noise"
+            />
+
+            <feDisplacementMap
+              in="SourceGraphic"
+              in2="noise"
+              scale="18"
+              xChannelSelector="R"
+              yChannelSelector="G"
+            />
+          </filter>
+        </defs>
+      </svg>
+
+      {/* =====================================================
+          RESPONSIVE ART STAGE
+      ====================================================== */}
       <div className="landing-stage">
-        {/* BACKGROUND */}
+
+        {/* ===================================================
+            ORIGINAL FOREST
+        ==================================================== */}
         <img
           src="/assets/landing/bg2.png"
           className="landing-background"
@@ -108,45 +229,71 @@ export default function LandingScene({ opened, onEnter }) {
           draggable="false"
         />
 
-        {/* ARCH */}
-        <div className="portal-area">
+        {/* ===================================================
+            RIPPLE VERSION OF FOREST
+
+            This is clipped around the cursor, so ONLY this
+            small region gets distorted.
+        ==================================================== */}
         <img
-          src="/assets/landing/fdoor.png"
-          className="landing-archdoor"
-          alt="Ancient forest portal"
+          src="/assets/landing/bg2.png"
+          className="landing-background-ripple"
+          alt=""
           draggable="false"
         />
 
-        {/* SPARKLES AROUND THE PORTAL WHILE HOVERING */}
-        {doorHovered && !opened && (
-          <div className="portal-particles">
-            {PARTICLES.map((particle) => (
-              <span
-                key={particle.id}
-                className="portal-particle"
-                style={{
-                  left: `${particle.left}%`,
-                  top: `${particle.top}%`,
-                  width: `${particle.size}px`,
-                  height: `${particle.size}px`,
-                  animationDuration: `${particle.duration}s`,
-                  animationDelay: `${particle.delay}s`,
-                  '--particle-drift': `${particle.drift}px`,
-                }}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* ACTUAL CLICK / HOVER TARGET */}
-        <button
-          type="button"
-          className="portal-hit-area"
-          aria-label="Enter the realm"
-          onMouseEnter={handleDoorEnter}
-          onMouseLeave={handleDoorLeave}
-          onClick={handleDoorClick}
+        {/* Soft ripple rings around the cursor */}
+        <div
+          className="forest-ripple-ring forest-ripple-ring-one"
+          aria-hidden="true"
         />
+
+        <div
+          className="forest-ripple-ring forest-ripple-ring-two"
+          aria-hidden="true"
+        />
+
+        {/* ===================================================
+            ARCH
+        ==================================================== */}
+        <div className="portal-area">
+          <img
+            src="/assets/landing/fdoor.png"
+            className="landing-archdoor"
+            alt="Ancient forest portal"
+            draggable="false"
+          />
+
+          {/* SPARKLES AROUND PORTAL */}
+          {doorHovered && !opened && (
+            <div className="portal-particles">
+              {PARTICLES.map((particle) => (
+                <span
+                  key={particle.id}
+                  className="portal-particle"
+                  style={{
+                    left: `${particle.left}%`,
+                    top: `${particle.top}%`,
+                    width: `${particle.size}px`,
+                    height: `${particle.size}px`,
+                    animationDuration: `${particle.duration}s`,
+                    animationDelay: `${particle.delay}s`,
+                    '--particle-drift': `${particle.drift}px`,
+                  }}
+                />
+              ))}
+            </div>
+          )}
+
+          {/* ACTUAL CLICK / HOVER TARGET */}
+          <button
+            type="button"
+            className="portal-hit-area"
+            aria-label="Enter the realm"
+            onMouseEnter={handleDoorEnter}
+            onMouseLeave={handleDoorLeave}
+            onClick={handleDoorClick}
+          />
         </div>
       </div>
 
@@ -165,8 +312,12 @@ export default function LandingScene({ opened, onEnter }) {
 
       {/* FULL-SCREEN PORTAL TRANSITION */}
       {opened && (
-        <div className="portal-transition" aria-hidden="true">
+        <div
+          className="portal-transition"
+          aria-hidden="true"
+        >
           <div className="portal-transition-flash" />
+
           <div className="portal-transition-particles">
             {TRANSITION_PARTICLES.map((particle) => (
               <span
