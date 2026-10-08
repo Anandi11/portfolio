@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import LanternCursor from './components/LanternCursor';
 import LandingScene from './scenes/LandingScene';
@@ -165,33 +165,602 @@ function Armory({ onNavigate }) {
    CHRONICLES
 ========================================================= */
 
+const CHRONICLES_BOOKS = [
+  {
+    id: 'academy',
+    number: 'I',
+    title: 'The Academy',
+    shortTitle: 'The Academy',
+    date: '2023 — 2027',
+    place: 'G Narayanamma Institute of Technology and Science',
+    cover: '#263f2d',
+    coverLight: '#719b69',
+    accent: '#9bc98b',
+
+    chapters: [
+      {
+        number: 'I',
+        title: 'The Academy',
+        date: '2023 — 2027',
+        place: 'G Narayanamma Institute of Technology and Science',
+        text:
+          'B.Tech Computer Science Engineering at GNITS. A chapter of learning, experimentation, problem solving and discovering how ideas can become real applications.',
+      },
+      {
+        number: 'II',
+        title: 'The Student',
+        date: 'Present',
+        place: 'Computer Science Engineering',
+        text:
+          'The journey has grown through programming, artificial intelligence, databases, web development and countless hours spent understanding how software works beneath the surface.',
+      },
+      {
+        number: 'III',
+        title: 'The Record',
+        date: 'Academic journey',
+        place: 'GNITS',
+        text:
+          'Academic excellence has remained an important part of the journey, alongside the desire to keep exploring technologies beyond the classroom.',
+      },
+    ],
+  },
+
+  {
+    id: 'microsoft',
+    number: 'II',
+    title: 'The Microsoft Chapter',
+    shortTitle: 'Microsoft',
+    date: 'May — July 2026',
+    place: 'Microsoft · Bangalore',
+    cover: '#26394d',
+    coverLight: '#7294b8',
+    accent: '#a7c8ed',
+
+    chapters: [
+      {
+        number: 'I',
+        title: 'The Internship',
+        date: 'May — July 2026',
+        place: 'Microsoft · Bangalore',
+        text:
+          'A Software Engineering Internship where I worked on automating end-to-end UI testing using Playwright.',
+      },
+      {
+        number: 'II',
+        title: 'The Workflow',
+        date: 'Engineering work',
+        place: 'E2E UI Automation',
+        text:
+          'I developed automated workflows for UI testing, focusing on reliable and deterministic execution of multi-step interactions.',
+      },
+      {
+        number: 'III',
+        title: 'The Copilot Skill',
+        date: 'A chapter in AI',
+        place: 'Workflow automation',
+        text:
+          'I also developed a skill for Copilot containing workflow logic and deterministic scripts designed to ensure that Copilot followed the required steps without skipping parts of the workflow.',
+      },
+    ],
+  },
+
+  {
+    id: 'earlier-years',
+    number: 'III',
+    title: 'The Earlier Years',
+    shortTitle: 'Earlier Years',
+    date: '2008 — 2022',
+    place: 'Pallavi Model School · Gowtham Junior College',
+    cover: '#49382b',
+    coverLight: '#b08a61',
+    accent: '#d7b27d',
+
+    chapters: [
+      {
+        number: 'I',
+        title: 'The Beginning',
+        date: '2008 — 2020',
+        place: 'Pallavi Model School',
+        text:
+          'The earlier years began at Pallavi Model School, where the foundations of curiosity, discipline and learning were built.',
+      },
+      {
+        number: 'II',
+        title: 'The Foundation',
+        date: 'Schooling',
+        place: 'CBSE',
+        text:
+          'Completed 10th Grade under the CBSE curriculum with an aggregate of 9.75.',
+      },
+      {
+        number: 'III',
+        title: 'The Next Chapter',
+        date: '2020 — 2022',
+        place: 'Gowtham Junior College',
+        text:
+          'Completed Intermediate with an aggregate of 9.77 before beginning the next chapter in Computer Science Engineering.',
+      },
+    ],
+  },
+];
+
+
+/* ---------------------------------------------------------
+   TYPING TEXT
+   Makes the words appear as if they are being written.
+--------------------------------------------------------- */
+
+function ChronicleTyping({
+  text,
+  speed = 18,
+}) {
+  const [displayedText, setDisplayedText] = useState('');
+
+  useEffect(() => {
+    setDisplayedText('');
+
+    let index = 0;
+
+    const timer = window.setInterval(() => {
+      index += 1;
+
+      setDisplayedText(text.slice(0, index));
+
+      if (index >= text.length) {
+        window.clearInterval(timer);
+      }
+    }, speed);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [text, speed]);
+
+  return (
+    <span className="chronicle-typing">
+      {displayedText}
+      {displayedText.length < text.length && (
+        <span className="typing-cursor">▌</span>
+      )}
+    </span>
+  );
+}
+
+
+/* ---------------------------------------------------------
+   BOOK COVER
+--------------------------------------------------------- */
+
+function ChronicleBook({
+  book,
+  selected,
+  onSelect,
+}) {
+  return (
+    <button
+      type="button"
+      className={`chronicle-library-book ${
+        selected ? 'chronicle-library-book--selected' : ''
+      }`}
+      style={{
+        '--book-cover': book.cover,
+        '--book-cover-light': book.coverLight,
+        '--book-accent': book.accent,
+      }}
+      onClick={() => onSelect(book)}
+      aria-label={`Open ${book.title}`}
+    >
+      <span className="chronicle-book-shadow" />
+
+      <span className="chronicle-book-cover">
+        <span className="chronicle-book-number">
+          {book.number}
+        </span>
+
+        <span className="chronicle-book-decoration">
+          ✦
+        </span>
+
+        <span className="chronicle-book-title">
+          {book.shortTitle}
+        </span>
+
+        <span className="chronicle-book-subtitle">
+          THE CHRONICLES
+        </span>
+
+        <span className="chronicle-book-line" />
+      </span>
+
+      <span className="chronicle-book-spine">
+        {book.number}
+      </span>
+    </button>
+  );
+}
+
+
+/* ---------------------------------------------------------
+   LIBRARY SHELF
+--------------------------------------------------------- */
+
+function ChronicleLibrary({
+  selectedBook,
+  onSelect,
+}) {
+  return (
+    <div className="chronicles-library">
+      <div className="chronicles-library-heading">
+        <span className="chronicles-library-rule" />
+
+        <span>
+          THE LIBRARY OF MY JOURNEY
+        </span>
+
+        <span className="chronicles-library-rule" />
+      </div>
+
+      <p className="chronicles-library-hint">
+        Choose a volume to open its story.
+      </p>
+
+      <div className="chronicles-shelf">
+        <div className="chronicles-books">
+          {CHRONICLES_BOOKS.map((book) => (
+            <ChronicleBook
+              key={book.id}
+              book={book}
+              selected={selectedBook?.id === book.id}
+              onSelect={onSelect}
+            />
+          ))}
+        </div>
+
+        <div className="chronicles-shelf-board" />
+      </div>
+    </div>
+  );
+}
+
+
+/* ---------------------------------------------------------
+   OPEN BOOK
+--------------------------------------------------------- */
+
+function ChronicleBookSpread({
+  book,
+  currentChapter,
+  isTurning,
+  onClose,
+  onPrevious,
+  onNext,
+  onTurnPage,
+}) {
+  const chapter = book.chapters[currentChapter];
+
+  const isLastChapter =
+    currentChapter >= book.chapters.length - 1;
+
+  return (
+    <div className="chronicles-overlay">
+      <div className="chronicles-open-book">
+
+        {/* HEADER */}
+        <div className="chronicles-open-header">
+
+          <div>
+            <span className="chronicles-open-eyebrow">
+              THE CHRONICLES · VOLUME {book.number}
+            </span>
+
+            <span className="chronicles-writing-status">
+              <span className="chronicles-status-dot" />
+
+              {isTurning
+                ? 'Turning the page...'
+                : isLastChapter
+                ? 'The story is complete.'
+                : 'The ink is writing...'}
+            </span>
+          </div>
+
+          <button
+            type="button"
+            className="chronicles-close"
+            onClick={onClose}
+            aria-label="Close book"
+          >
+            ×
+          </button>
+
+        </div>
+
+
+        {/* BOOK */}
+        <div className="chronicles-book-spread">
+
+          {/* CURRENT PAGE */}
+          <div className="chronicles-page chronicles-page-left">
+
+            <article
+              className={`chronicles-written-page chronicles-sequential-page ${
+                isTurning
+                  ? 'chronicles-page-turning'
+                  : 'chronicles-written-page--visible'
+              }`}
+              onClick={!isTurning ? onTurnPage : undefined}
+            >
+
+              <div className="chronicles-page-seal">
+                {chapter.number}
+              </div>
+
+              <div className="chronicles-page-content">
+
+                <span className="chronicles-page-date">
+                  {chapter.date}
+                </span>
+
+                <h2>
+                  {chapter.title}
+                </h2>
+
+                <h3>
+                  {chapter.place}
+                </h3>
+
+                <p>
+                  <ChronicleTyping
+                    key={`${book.id}-${currentChapter}`}
+                    text={chapter.text}
+                    speed={17}
+                  />
+                </p>
+
+              </div>
+
+            </article>
+
+          </div>
+
+
+          {/* BINDING */}
+          <div
+            className="chronicles-book-binding"
+            aria-hidden="true"
+          >
+            <span />
+            <span />
+            <span />
+          </div>
+
+
+          {/* RIGHT PAGE — intentionally empty */}
+          <div className="chronicles-page chronicles-page-right">
+
+            <div className="chronicles-empty-page">
+              <span className="chronicles-page-number">
+                VOLUME {book.number}
+              </span>
+            </div>
+
+          </div>
+
+
+          {/* PHYSICAL PAGE TURN */}
+          {isTurning && (
+            <div className="chronicles-page-turn-layer">
+
+              <div className="chronicles-page-turn-sheet">
+
+                <div className="chronicles-page-turn-front">
+                  <span className="chronicles-page-seal">
+                    {chapter.number}
+                  </span>
+
+                  <div className="chronicles-page-content">
+                    <span className="chronicles-page-date">
+                      {chapter.date}
+                    </span>
+
+                    <h2>{chapter.title}</h2>
+
+                    <h3>{chapter.place}</h3>
+                  </div>
+                </div>
+
+                <div className="chronicles-page-turn-back" />
+
+              </div>
+
+            </div>
+          )}
+
+        </div>
+
+
+        {/* FOOTER */}
+        <div className="chronicles-book-footer">
+
+          <div className="chronicles-footer-left">
+
+            <span className="chronicles-page-progress">
+              PAGE {currentChapter + 1} / {book.chapters.length}
+            </span>
+
+            {!isLastChapter && (
+              <button
+                type="button"
+                className="chronicles-reveal-button"
+                onClick={onTurnPage}
+                disabled={isTurning}
+              >
+                TURN PAGE
+                <span>→</span>
+              </button>
+            )}
+
+            {isLastChapter && (
+              <span className="chronicles-story-complete">
+                THE STORY IS COMPLETE
+              </span>
+            )}
+
+          </div>
+
+
+          <div className="chronicles-book-navigation">
+
+            <button
+              type="button"
+              onClick={onPrevious}
+            >
+              ← Previous
+            </button>
+
+            <button
+              type="button"
+              onClick={onNext}
+            >
+              Next →
+            </button>
+
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   CHRONICLES PAGE
+========================================================= */
+
 function Chronicles({ onNavigate }) {
-  const chapters = [
-    {
-      number: 'I',
-      title: 'The Academy',
-      date: '2023 — 2027',
-      place: 'G Narayanamma Institute of Technology and Science',
-      text:
-        'B.Tech Computer Science Engineering (GNITS). Aggregate 9.62.',
-    },
-    {
-      number: 'II',
-      title: 'The Internship',
-      date: 'May — July 2026',
-      place: 'Microsoft · Bangalore',
-      text:
-        'Software Engineering Intern. Built automated E2E UI test suites using Playwright and designed a Copilot skill with deterministic workflow automation.',
-    },
-    {
-      number: 'III',
-      title: 'The Earlier Years',
-      date: '2008 — 2022',
-      place: 'Pallavi Model School · Gowtham Junior College',
-      text:
-        '10th Grade (CBSE) aggregate 9.75 and Intermediate (SSC) aggregate 9.77.',
-    },
-  ];
+  const [selectedBook, setSelectedBook] = useState(null);
+
+  const [currentChapter, setCurrentChapter] = useState(0);
+
+  const [isTurning, setIsTurning] = useState(false);
+
+
+  /* -------------------------------------------------------
+     Open a book
+  ------------------------------------------------------- */
+
+  const openBook = (book) => {
+    setCurrentChapter(0);
+    setIsTurning(false);
+    setSelectedBook(book);
+  };
+
+
+  /* -------------------------------------------------------
+     Close the book
+  ------------------------------------------------------- */
+
+  const closeBook = () => {
+    setSelectedBook(null);
+    setCurrentChapter(0);
+    setIsTurning(false);
+  };
+
+
+  /* -------------------------------------------------------
+     Turn to the next chapter
+  ------------------------------------------------------- */
+
+  const turnPage = () => {
+  if (!selectedBook) return;
+
+  if (isTurning) return;
+
+  if (
+    currentChapter >=
+    selectedBook.chapters.length - 1
+  ) {
+    return;
+  }
+
+  setIsTurning(true);
+
+  window.setTimeout(() => {
+    setCurrentChapter((chapter) => chapter + 1);
+    setIsTurning(false);
+  }, 900);
+};
+
+
+  /* -------------------------------------------------------
+     Previous / Next BOOK
+  ------------------------------------------------------- */
+
+  const currentIndex = selectedBook
+    ? CHRONICLES_BOOKS.findIndex(
+        (book) => book.id === selectedBook.id
+      )
+    : -1;
+
+
+  const previousBook =
+    currentIndex > 0
+      ? CHRONICLES_BOOKS[currentIndex - 1]
+      : CHRONICLES_BOOKS[
+          CHRONICLES_BOOKS.length - 1
+        ];
+
+
+  const nextBook =
+    currentIndex < CHRONICLES_BOOKS.length - 1
+      ? CHRONICLES_BOOKS[currentIndex + 1]
+      : CHRONICLES_BOOKS[0];
+
+
+  /* -------------------------------------------------------
+     Keyboard controls
+  ------------------------------------------------------- */
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (!selectedBook) return;
+
+      if (event.key === 'Escape') {
+        closeBook();
+        return;
+      }
+
+      if (event.key === 'ArrowRight') {
+        turnPage();
+        return;
+      }
+
+      if (event.key === 'ArrowLeft') {
+        openBook(previousBook);
+      }
+    };
+
+
+    window.addEventListener(
+      'keydown',
+      handleKeyDown
+    );
+
+
+    return () => {
+      window.removeEventListener(
+        'keydown',
+        handleKeyDown
+      );
+    };
+  }, [
+    selectedBook,
+    currentChapter,
+    isTurning,
+    currentIndex,
+  ]);
+
 
   return (
     <PageShell
@@ -199,27 +768,35 @@ function Chronicles({ onNavigate }) {
       title="A story still being written"
       onNavigate={onNavigate}
     >
-      <div className="book">
-        {chapters.map((chapter) => (
-          <article className="chapter" key={chapter.number}>
-            <div className="chapter-seal">
-              {chapter.number}
-            </div>
 
-            <div>
-              <span className="chapter-date">
-                {chapter.date}
-              </span>
+      <div className="chronicles-page-wrapper">
 
-              <h2>{chapter.title}</h2>
+        {/* LIBRARY */}
+        <ChronicleLibrary
+          selectedBook={selectedBook}
+          onSelect={openBook}
+        />
 
-              <h3>{chapter.place}</h3>
 
-              <p>{chapter.text}</p>
-            </div>
-          </article>
-        ))}
+        {/* OPEN BOOK */}
+        {selectedBook && (
+          <ChronicleBookSpread
+            book={selectedBook}
+            currentChapter={currentChapter}
+            isTurning={isTurning}
+            onClose={closeBook}
+            onPrevious={() =>
+              openBook(previousBook)
+            }
+            onNext={() =>
+              openBook(nextBook)
+            }
+            onTurnPage={turnPage}
+          />
+        )}
+
       </div>
+
     </PageShell>
   );
 }
